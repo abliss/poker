@@ -64,16 +64,22 @@ class Hand implements Comparable<Hand> {
 		return cards.get(index);
 	}
 
-	public List<Card> without(Card remove) {
-		List<Card> partialHand = Lists.newArrayListWithExpectedSize(3);
+	public List<Card> without(Card... remove) {
+		List<Card> partialHand = Lists.newArrayListWithExpectedSize(4 - remove.length);
 		for (Card c : cards) {
-			if (!c.equals(remove)) {
+			boolean shouldRemove = false;
+			for (Card cardToRemove : remove) {
+				if (c.equals(cardToRemove)) {	
+					shouldRemove = true;
+				}
+			}
+			if (!shouldRemove) {
 				partialHand.add(c);
 			}
-		}
+		}	
 		return partialHand;
 	}
-
+	
 	public String toString() {
 		StringBuilder s = new StringBuilder();
 		for (Card card : cards) {

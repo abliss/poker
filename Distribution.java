@@ -1,14 +1,8 @@
 import java.util.Collection;
-import java.util.Iterator;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
-import java.util.Vector;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Iterables;
@@ -22,7 +16,6 @@ import com.google.common.collect.TreeMultiset;
 class Distribution {
 	
 	private Multiset<Hand> hands = TreeMultiset.create();
-	private static final ExecutorService executor = Executors.newFixedThreadPool(1);
 	
 	public Distribution(Collection<Hand> hands) {
 		this.hands.addAll(hands);
@@ -40,74 +33,63 @@ class Distribution {
 	 * Generate all possible hands that can be made by drawing to a partial hand from the given deck.
 	 * Does not modify the deck or the hand.
 	 */
-	public static Distribution generate(Collection<Card> partialHand, Deck deck) {
-	    if (partialHand.size() == 1) { 
-	        System.out.println(partialHand);
-	        System.out.println(deck.size());
-	        System.out.println(deck);
+	public static Distribution generate(Collection<Card> partialHand, Deck deck) {	    
+	    if (partialHand.size() == 4) {
+	    	return new Distribution(Lists.newArrayList(new Hand(partialHand)));
 	    }
-	    
-		/*
-		long startTime = System.currentTimeMillis();
-		final Map<Genome, Double> scores = Maps.newHashMap();
-		final Vector<Genome> children = new Vector<Genome>(population.size());
-		final List<Future<?>> tasks = Lists.newArrayList();
-
-		for (final Genome parent : population) {
-			tasks.add(executor.submit(new Runnable() {
-				public void run() {
-					Deck d = new Deck();
-					d.shuffle();
-					Genome otherParent = population.get((int) (Math.random() * population.size()));
-					double score = parent.compete(population);
-//					System.out.println(score);
-					scores.put(parent, score);
-				}
-			}));
-		}
-
-		for (Future<?> f : tasks) {
-			try {
-				f.get();
-			} catch (ExecutionException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-	*/	
-		if (partialHand.size() == 4) {
-			return new Distribution(Lists.newArrayList(new Hand(partialHand)));
-		}
-		Multiset<Hand> possibleHands = HashMultiset.create();
-		for (int i = 0; i < 4 - partialHand.size(); i++) {
-			for (Card c : deck.asList()) {
-				Set<Card> partialPlusDraw = Sets.newHashSet(partialHand);
-				partialPlusDraw.add(c);
-				possibleHands.addAll(Distribution.generate(partialPlusDraw, deck.without(c)).getHands());
-			}
-		}
-		return new Distribution(possibleHands);
+	    Multiset<Hand> possibleHands = HashMultiset.create();
+	    for (int i = 0; i < 4 - partialHand.size(); i++) {
+	    	for (Card c : deck.asList()) {
+	    		Set<Card> partialPlusDraw = Sets.newHashSet(partialHand);
+	    		partialPlusDraw.add(c);
+	    		possibleHands.addAll(Distribution.generate(partialPlusDraw, deck.without(c)).getHands());
+	    	}
+	    }
+	    return new Distribution(possibleHands);
 	}
 	
-	public static Map<Collection<Card>, Collection<Hand>> generateAllDistributions(Hand hand, Deck deck) {
-		Map<Collection<Card>, Collection<Hand>> possibleDistributions = Maps.newHashMap();
+	public static Map<Collection<Card>, Distribution> generateAllDistributions(Hand hand, Deck deck) {
+	    Map<Collection<Card>, Distribution> possibleDistributions = Maps.newHashMap();
+	    // Discard 0
+	    possibleDistributions.put(hand.getCards(), Distribution.generate(hand.getCards(), deck));
+	    
+		Collection<Card> tempHand;
 		
-		return possibleDistributions;
+	    // Discard 1
+	    for (int i = 0; i < 4; i++) {
+	    	tempHand = hand.without(hand.cardAt(i));
+	    	possibleDistributions.put(tempHand, Distribution.generate(tempHand, deck));
+	    }
+	    
+	    // Discard 2
+	    for (int i = 0; i < 4; i++) {
+	    	for (int j = 0; j < 4; j++) {
+	    		tempHand = hand.without(hand.cardAt(i), hand.cardAt(j));
+	    		possibleDistributions.put(tempHand, Distribution.generate(tempHand, deck));
+	    	}
+	    }
+	    
+	    // Discard 3
+	    for (int i = 0; i < 4; i++) {
+	    	tempHand = Lists.newArrayList(hand.cardAt(i));
+	    	possibleDistributions.put(tempHand, Distribution.generate(tempHand, deck));
+	    }
+	    
+	    // Discard 4
+	    possibleDistributions.put(Collections.EMPTY_LIST,
+	    	Distribution.generate(Collections.EMPTY_LIST, deck));
+	    return possibleDistributions;
 	}
 	
 	public String display(Collection<Hand> hands, int numBuckets) {
-		int partitionSize = Math.round((float) hands.size() / numBuckets) - 1;
-
-		Iterable<List<Hand>> buckets = Iterables.partition(hands, partitionSize);
-		int bucketIndex = 0;
-		int elementIndex = 0;
-		StringBuilder sb = new StringBuilder();
-		sb.append(hands.size() + " elements");
-		for (Iterable<Hand> bucket : buckets) {
-			sb.append("\n" + bucketIndex + "(" + elementIndex + ") : " + bucket.iterator().next());
+	    int partitionSize = Math.max(1, Math.round((float) hands.size() / numBuckets) - 1);
+	    Iterable<List<Hand>> buckets = Iterables.partition(hands, partitionSize);
+	    int bucketIndex = 0;
+	    int elementIndex = 0;
+	    StringBuilder sb = new StringBuilder();
+	    sb.append(hands.size() + " elements");
+	    for (Iterable<Hand> bucket : buckets) {
+		sb.append("\n" + bucketIndex + "(" + elementIndex + ") : " + bucket.iterator().next());
             bucketIndex++;
             elementIndex += Iterables.size(bucket);
             if (bucketIndex == numBuckets + 1 ||
