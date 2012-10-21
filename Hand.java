@@ -9,56 +9,33 @@ import com.google.common.collect.Maps;
 
 class Hand implements Comparable<Hand> {
 
-	public static Map<Hand, List<Card>> handValues = Maps.newHashMapWithExpectedSize(270725);
+	private static Map<Hand, List<Card>> handValues = null;
 
-	static {
-		// Get playable hand for every hand
-		Deck deck = new Deck();
-		long startTime = System.currentTimeMillis();
-		for (int i = 0; i < deck.size(); ++i) {
-			for (int j = i + 1; j < deck.size(); ++j) {
-				for (int k = j + 1; k < deck.size(); ++k) {
-					for (int l = k + 1; l < deck.size(); ++l) {
-						Hand h = new Hand(deck.cardsAt(i, j, k, l));
-						handValues.put(h, ImmutableList.copyOf(h.playableHand()));
-					}
-				}
-			}
-		}
+	private static Map<Hand, List<Card>> getHandValues() {
+        if (handValues == null) {
+            handValues = Maps.newHashMapWithExpectedSize(270725);
+            // Get playable hand for every hand
+            Deck deck = new Deck();
+            long startTime = System.currentTimeMillis();
+            for (int i = 0; i < deck.size(); ++i) {
+                for (int j = i + 1; j < deck.size(); ++j) {
+                    for (int k = j + 1; k < deck.size(); ++k) {
+                        for (int l = k + 1; l < deck.size(); ++l) {
+                            Hand h = new Hand(deck.cardsAt(i, j, k, l));
+                            handValues.put(h, ImmutableList.copyOf(h.playableHand()));
+                        }
+                    }
+                }
+            }
 
-		System.out.println(handValues.size());
-		System.out.println(handValues.entrySet().size());
-		System.out.println(handValues.keySet().size());
-		System.out.println(System.currentTimeMillis() - startTime);	
+            System.out.println(handValues.size());
+            System.out.println(handValues.entrySet().size());
+            System.out.println(handValues.keySet().size());
+            System.out.println(System.currentTimeMillis() - startTime);	
 		
-		//System.out.println("all hands:\n" + new Distribution(handValues.keySet()).toString());		
-/*
-		startTime = System.currentTimeMillis();
-		List<Set<Card>> sortedHands = Lists.newArrayListWithExpectedSize(270725);
-		boolean empty = true;
-		int count = 0;
-		for (Hand h : handValues.keySet()) {
-			if (empty) {
-				sortedHands.add(Sets.newHashSet(h.getCards()));
-				empty = false;
-				continue;
-			}
-			ListIterator<Set<Card>> i = sortedHands.listIterator();
-			boolean inserted = false;
-			while (i.hasNext() && !inserted) {
-				Set<Card> s = i.next();
-				Hand hand = new Hand(Lists.newArrayList(s));
-				if (h.compareTo(hand) <= 0) {
-					i.add(Sets.newHashSet(h.getCards()));
-					inserted = true;
-				}
-			}
-			if (count % 1000 == 0) {
-				System.out.println(count);
-			}
-			count++;
-		}
-	*/
+            //System.out.println("all hands:\n" + new Distribution(handValues.keySet()).toString());
+        }
+        return handValues;
 	}
 
 	/** Cards in the hand in sorted order */
@@ -117,8 +94,8 @@ class Hand implements Comparable<Hand> {
 	 * 0 if they're the same
 	 */
 	public int compareTo(Hand otherHand) {
-		List<Card> thisHand = handValues.get(this);
-		List<Card> thatHand = handValues.get(otherHand);
+		List<Card> thisHand = getHandValues().get(this);
+		List<Card> thatHand = getHandValues().get(otherHand);
 		if (thisHand == null || thatHand == null) {
 		    
 		    return 0;

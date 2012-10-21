@@ -5,7 +5,8 @@ class Test {
         Deck deck = new Deck();
         Hand hand = new Hand(deck);
         System.out.println("First hand: " + hand);
-        hand = hand.draw(deck, Lists.newArrayList(0));
-        System.out.println("After draw: " + hand);
+        Hand hand2 = hand.draw(deck, Lists.newArrayList(0));
+        System.out.println("After draw: " + hand2);
+        System.out.println("Improvement? " + hand2.compareTo(hand));
     }
 }
