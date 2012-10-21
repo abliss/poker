@@ -93,7 +93,7 @@ class Hand implements Comparable<Hand> {
 	 * -1 if it's worse
 	 * 0 if they're the same
 	 */
-	public int compareTo(Hand otherHand) {
+	@Override public int compareTo(Hand otherHand) {
 		List<Card> thisHand = getHandValues().get(this);
 		List<Card> thatHand = getHandValues().get(otherHand);
 		if (thisHand == null || thatHand == null) {

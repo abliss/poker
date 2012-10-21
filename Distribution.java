@@ -19,8 +19,7 @@ import com.google.common.collect.Multisets;
 import com.google.common.collect.Sets;
 import com.google.common.collect.TreeMultiset;
 
-class Distribution {
-	
+class Distribution implements Comparable<Distribution> {
 	private Multiset<Hand> hands = TreeMultiset.create();
 	private static final ExecutorService executor = Executors.newFixedThreadPool(1);
 	
@@ -139,4 +138,61 @@ class Distribution {
 		
 		return sb.toString();
 	}
+
+    /** Of all the n^2 possible hand pairings between my distribution and eirs,
+     * in how many would my hand win?  (Actually only has to do O(n)
+     * comparisons, since both lists are sorted.)
+     */
+    public int winsAgainst(Distribution other) {
+        // TODO: this could be a bit faster with binary search instead of
+        // scanning.  Would require random-access lists instead of iterators,
+        // which is currently not supported since we use multisets.
+        int wins = 0;
+        int eirIndex = 0;
+        Iterator<Hand> myHands = getHands().iterator();
+        Iterator<Hand> eirHands = other.getHands().iterator();
+        Hand mine = null;
+        while (eirHands.hasNext()) {
+            // grab eir next best hand
+            Hand eirs = eirHands.next();
+            eirIndex++;
+            // Adavance my hand until I can beat it
+            boolean advanced = false;
+            while ((mine == null) || (mine.compareTo(eirs) <= 0)) {
+                if (!myHands.hasNext()) {
+                    // I'm all out of hands and can't beat eir current hand.  I
+                    // have no more wins to report.
+                    return wins;
+                }
+                mine = myHands.next();
+                advanced = true;
+            }
+            // I have a winner!  What kind?
+            if (advanced) {
+                // This is a new winner.  It beats eir hand and all eir worse hands.
+                wins += eirIndex;
+            } else {
+                // This is the same winner as the last time through the loop.
+                // Give it credit for beating one more of eir hands.
+                wins += 1;
+            }
+        }
+        // E has no more hands; each of my remaining hands beats all eir hands.
+        while (myHands.hasNext()) {
+            myHands.next();
+            wins += eirIndex;
+        }
+        return wins;
+    }
+    
+    /**
+     * @returns something positive, negative, or zero if this distribution is a
+     * likely win over the other; a likely dog, or a dead heat.
+     * @throws {@link IllegalArgumentException} if either distro is empty
+     */
+	@Override public int compareTo(Distribution other) {
+        int wins = this.winsAgainst(other);
+        int losses = other.winsAgainst(this);
+        return wins - losses;
+    }
 }

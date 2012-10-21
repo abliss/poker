@@ -2,11 +2,15 @@ import com.google.common.collect.Lists;
 
 class Test {
     public static void main(String[] argv) {
-        Deck deck = new Deck();
-        Hand hand = new Hand(deck);
-        System.out.println("First hand: " + hand);
-        Hand hand2 = hand.draw(deck, Lists.newArrayList(0));
-        System.out.println("After draw: " + hand2);
-        System.out.println("Improvement? " + hand2.compareTo(hand));
+        for (int i = 0; i < 20; i++) {
+            Deck deck = new Deck().shuffle();
+            Hand hand1 = new Hand(deck);
+            System.out.println("First hand:  " + hand1);
+            Hand hand2 = new Hand(deck);
+            System.out.println("Second hand: " + hand2);
+            Distribution dist1 = Distribution.generate(hand1.without(hand1.cardAt(3)), deck);
+            Distribution dist2 = Distribution.generate(hand2.without(hand2.cardAt(3)), deck);
+            System.out.println("Dist compare: " + dist1.compareTo(dist2));
+        }
     }
 }
