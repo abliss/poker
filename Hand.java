@@ -62,13 +62,18 @@ class Hand implements Comparable<Hand> {
 	}
 
 	/** Cards in the hand in sorted order */
-	List<Card> cards;
+	private final List<Card> cards;
 
 	Hand(Card c1, Card c2, Card c3, Card c4) {
 		cards = Lists.newArrayList(c1, c2, c3, c4);
 		Collections.sort(cards);
 	}
 
+    /** Deal a new hand from the top of the given deck. */
+    Hand(Deck d) {
+        this(d.draw(), d.draw(), d.draw(), d.draw());
+    }
+    
 	Hand(Collection<Card> cardList) {
 		if (cardList.size() != 4) {
 			throw new IllegalArgumentException();
@@ -242,4 +247,18 @@ class Hand implements Comparable<Hand> {
 		return getCards().hashCode();
 	}
 
+    /**
+     * Create a new hand by keeping only the cards of the given indices, and
+     * drawing the rest from the given deck.
+     */
+    public Hand draw(Deck d, List<Integer> keepers) {
+		List<Card> newCards = Lists.newArrayListWithExpectedSize(4);
+        for (int keepIndex : keepers) {
+            newCards.add(cards.get(keepIndex));
+        }
+        while (newCards.size() < 4) {
+            newCards.add(d.draw());
+        }
+        return new Hand(newCards);
+    }
 }
