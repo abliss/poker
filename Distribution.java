@@ -25,7 +25,7 @@ class Distribution implements Comparable<Distribution> {
 		this.hands.addAll(d.getHands());
 	}
 	
-	public Collection<Hand> getHands() {
+	public Multiset<Hand> getHands() {
 		return Multisets.unmodifiableMultiset(hands);
 	}
 	
@@ -131,39 +131,33 @@ class Distribution implements Comparable<Distribution> {
         // scanning.  Would require random-access lists instead of iterators,
         // which is currently not supported since we use multisets.
         int wins = 0;
-        int eirIndex = 0;
-        Iterator<Hand> myHands = getHands().iterator();
-        Iterator<Hand> eirHands = other.getHands().iterator();
-        Hand mine = null;
+        int beatables = 0;
+        Iterator<Multiset.Entry<Hand>> myHands = getHands().entrySet().iterator();
+        Iterator<Multiset.Entry<Hand>> eirHands = other.getHands().entrySet().iterator();
+        Multiset.Entry<Hand> mine = null;
         while (eirHands.hasNext()) {
             // grab eir next best hand
-            Hand eirs = eirHands.next();
-            eirIndex++;
+            Multiset.Entry<Hand> eirs = eirHands.next();
             // Adavance my hand until I can beat it
             boolean advanced = false;
-            while ((mine == null) || (mine.compareTo(eirs) <= 0)) {
+            while ((mine == null) || (mine.getElement().compareTo(eirs.getElement()) <= 0)) {
                 if (!myHands.hasNext()) {
                     // I'm all out of hands and can't beat eir current hand.  I
                     // have no more wins to report.
                     return wins;
                 }
                 mine = myHands.next();
-                advanced = true;
+                // This bucket of mine also beats all eir already-beaten hands.
+                wins += mine.getCount() * beatables;
             }
-            // I have a winner!  What kind?
-            if (advanced) {
-                // This is a new winner.  It beats eir hand and all eir worse hands.
-                wins += eirIndex;
-            } else {
-                // This is the same winner as the last time through the loop.
-                // Give it credit for beating one more of eir hands.
-                wins += 1;
-            }
+            // I have a winner!
+            wins += eirs.getCount() * mine.getCount();
+            beatables += eirs.getCount();
         }
         // E has no more hands; each of my remaining hands beats all eir hands.
         while (myHands.hasNext()) {
-            myHands.next();
-            wins += eirIndex;
+            mine = myHands.next();
+            wins += beatables * mine.getCount();
         }
         return wins;
     }
