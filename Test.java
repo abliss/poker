@@ -1,6 +1,7 @@
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Random;
 
 import com.google.common.collect.Lists;
 
@@ -22,17 +23,17 @@ class Test {
         System.out.println(deck);
         // TODO(ejwu): Figure out why 5 choose 4 is apparently 2880
         System.out.println(Distribution.generate(Collections.EMPTY_LIST, deck));
-        if (true) return;
-        Map<Collection<Card>, Distribution> distributions = Distribution.generateAllDistributions(hand, deck);
-        for (Collection<Card> partialHand : distributions.keySet()) {
-        	System.out.println(partialHand);
-        	System.out.println(distributions.get(partialHand));
-        	System.out.println("--------------");
+        if (false) {
+            Map<Collection<Card>, Distribution> distributions = Distribution.generateAllDistributions(hand, deck);
+            for (Collection<Card> partialHand : distributions.keySet()) {
+                System.out.println(partialHand);
+                System.out.println(distributions.get(partialHand));
+                System.out.println("--------------");
         	
+            }
         }
-
         for (int i = 0; i < 20; i++) {
-            deck = new Deck().shuffle();
+            deck = new Deck().shuffle(new Random(i));
             hand = new Hand(deck);
             System.out.println("First hand:  " + hand);
             hand2 = new Hand(deck);

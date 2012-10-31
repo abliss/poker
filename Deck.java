@@ -3,6 +3,7 @@ import com.google.common.collect.Lists;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 
 class Deck {
@@ -102,6 +103,10 @@ class Deck {
 
 	public Deck shuffle() {
 		Collections.shuffle(cards);
+		return this;
+	}
+	public Deck shuffle(Random rand) {
+		Collections.shuffle(cards, rand);
 		return this;
 	}
 
