@@ -11,7 +11,7 @@ class Hand implements Comparable<Hand> {
 
 	private static Map<Hand, List<Card>> handValues = null;
 
-	private static Map<Hand, List<Card>> getHandValues() {
+	public static Map<Hand, List<Card>> getHandValues() {
         if (handValues == null) {
             handValues = Maps.newHashMapWithExpectedSize(270725);
             // Get playable hand for every hand
@@ -100,8 +100,8 @@ class Hand implements Comparable<Hand> {
 	 * 0 if they're the same
 	 */
 	@Override public int compareTo(Hand otherHand) {
-		List<Card> thisHand = getHandValues().get(this);
-		List<Card> thatHand = getHandValues().get(otherHand);
+		List<Card> thisHand = this.playableHand(); //getHandValues().get(this);
+		List<Card> thatHand = otherHand.playableHand(); //getHandValues().get(otherHand);
 		if (thisHand == null || thatHand == null) {
 		    
 		    return 0;
