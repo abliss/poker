@@ -22,7 +22,7 @@ class Test {
         //list.add(deck.draw());
         //Hand.getHandValues();
         System.out.println("____ FLAT DISTRO ____" + new Date());
-        System.out.println(Distribution.generate(list, deck));
+        System.out.println(Distribution.generate(list, deck).getHands());
         System.out.println("____  PAT DISTRO ____" + new Date());
         if (true) return;
         System.out.println(Strategies.getDistribution(Strategies.PatStrategy, null));

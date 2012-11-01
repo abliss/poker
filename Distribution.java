@@ -41,13 +41,11 @@ class Distribution implements Comparable<Distribution> {
 	    	return new Distribution(Lists.newArrayList(new Hand(partialHand)));
 	    }
 	    Multiset<Hand> possibleHands = HashMultiset.create();
-	    for (int i = 0; i < 4 - partialHand.size(); i++) {
-	    	for (Card c : deck.asList()) {
-	    		Set<Card> partialPlusDraw = Sets.newHashSet(partialHand);
-	    		partialPlusDraw.add(c);
-	    		possibleHands.addAll(Distribution.generate(partialPlusDraw, deck.without(c)).getHands());
-	    	}
-	    }
+        for (Card c : deck.asList()) {
+            Set<Card> partialPlusDraw = Sets.newHashSet(partialHand);
+            partialPlusDraw.add(c);
+            possibleHands.addAll(Distribution.generate(partialPlusDraw, deck.without(c)).getHands());
+        }
 	    return new Distribution(possibleHands);
 	}
 	
