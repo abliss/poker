@@ -123,8 +123,8 @@ class Deck {
      * All possible sutified 4-card hands that this deck can deal, with
      * frequency counts.
      */
-    public TreeMultiset<Hand> allSuitifiedHands() {
-        TreeMultiset<Hand> suitifiedHands = TreeMultiset.create();
+    public Multiset<Hand> allSuitifiedHands() {
+        Multiset<Hand> suitifiedHands = HashMultiset.create();
         for (int i = 0; i < cards.size(); ++i) {
             for (int j = i + 1; j < cards.size(); ++j) {
                 for (int k = j + 1; k < cards.size(); ++k) {

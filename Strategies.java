@@ -146,6 +146,10 @@ class Strategies {
                 kept.remove(1);
             }
         } else if (kept.size() == 0) {
+            // XXX As long as we're drawing against the pat distro, we know this must = 0
+            totalScore = 0.0f;
+            count = 1;
+            /*
             totalScore = 0;
             int size = deck.size();
             count = size * (size - 1) * (size - 2) * (size - 3)/ 24;
@@ -179,6 +183,7 @@ class Strategies {
                 }
                 kept.remove(0);
             }
+            */
         } else {
             throw new RuntimeException("Bad size for kept: " + kept.size());
         }
@@ -197,29 +202,20 @@ class Strategies {
         Hand myHand = new Hand(handCards);
         int wins = 0;
         int losses = 0;
-        int total = 0;
-        // Eir hands are in increasing order; once beaten, we stay beaten.
-        boolean check = true;
-        int count = 0;
-        for (Multiset.Entry<Hand> eirHands : deck.allSuitifiedHands().entrySet()) {
-            // TODO: binary search
-            int winner = -1;
-            if (check) {
-                winner = myHand.compareTo(eirHands.getElement());
-                count++;
-            }
+        Multiset<Hand> distro = deck.allSuitifiedHands();
+        int total = distro.size();
+        for (Multiset.Entry<Hand> eirHands : distro.entrySet()) {
+            int winner = winner = myHand.compareTo(eirHands.getElement());
             int eirCount = eirHands.getCount();
             if (winner > 0) {
                 wins += eirCount;
             } else if (winner < 0) {
                 losses += eirCount;
-                check = false;
             }
-            total += eirCount;
             // TODO: thresh check
         }
         float score = ((float) (wins - losses)) / total;
-        System.out.println("Scoring " + myHand + " as " + score + " count=" + count + "  :" + (System.currentTimeMillis() - Test.START));
+        System.out.println("Scoring " + myHand + " as " + score + "  :" + (System.currentTimeMillis() - Test.START));
         return score;
     }
 
