@@ -11,11 +11,18 @@ import com.google.common.collect.Lists;
 class Test {
     
     public static void main(String[] argv) {
-        Deck d = new Deck();
-        d.shuffle(new Random(0));
-        Hand h = new Hand(d);
-        Strategies.bestDraw(h, d, null, null);
-
+        for (int j = 0; j < 10; j++) {
+            Deck deck = new Deck();
+            deck.shuffle(new Random(j));
+            for (int i = 0; i < 39; i++) {
+                deck.draw();
+            }
+            System.out.println("____ DECK ____" + deck.asList());
+            Hand h = new Hand(deck);
+            System.out.println("____ HAND ____" + h);
+            System.out.print("____ KEEP ____");
+            System.out.println(Strategies.bestDraw(h, deck, null, null));
+        }
             /*
         //System.out.println("____ DECK ____" + deck.asList());
         System.out.println("____ FAST DISTRO ____" + new Date());
