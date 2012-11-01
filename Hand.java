@@ -21,7 +21,7 @@ class Hand implements Comparable<Hand> {
                 for (int j = i + 1; j < deck.size(); ++j) {
                     for (int k = j + 1; k < deck.size(); ++k) {
                         for (int l = k + 1; l < deck.size(); ++l) {
-                            Hand h = new Hand(deck.cardsAt(i, j, k, l));
+                            Hand h = new Hand(Card.suitify(deck.cardsAt(i, j, k, l)));
                             handValues.put(h, ImmutableList.copyOf(h.playableHand()));
                         }
                     }
@@ -138,6 +138,7 @@ class Hand implements Comparable<Hand> {
 		return true;
 	}
 
+    
 	// test cases - 4c4s9cQc -> 4s9c
 	/**
 	 * Return the playable cards in a hand.  Assumes that the hand is in sorted order.
@@ -230,6 +231,7 @@ class Hand implements Comparable<Hand> {
 		return getCards().hashCode();
 	}
 
+   
     /**
      * Create a new hand by keeping only the cards of the given indices, and
      * drawing the rest from the given deck.

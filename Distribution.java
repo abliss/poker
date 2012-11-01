@@ -35,6 +35,29 @@ class Distribution implements Comparable<Distribution> {
 	}
 	
 	/**
+     * Generate the pat distribution
+	 */
+	public static Distribution generatePat() {
+        Multiset<Hand> hands = HashMultiset.create();
+        Deck deck = new Deck();
+        long startTime = System.currentTimeMillis();
+        int size = deck.size();
+        for (int i = size - 1; i >= 0; i--) {
+            for (int j = i - 1; j >= 0; --j) {
+                for (int k = j - 1; k >= 0; --k) {
+                    for (int l = k - 1; l >= 0; --l) {
+                        hands.add(new Hand(deck.cardsAt(i, j, k, l)));
+                    }
+                }
+            }
+        }
+        Distribution dist = new Distribution(hands);
+        System.out.println("Pat distro hands: " + hands.size());
+        System.out.println("Pat distro time: " + (System.currentTimeMillis() - startTime));
+        return dist;
+    }
+
+	/**
 	 * Generate all possible hands that can be made by drawing to a partial hand from the given deck.
 	 * Does not modify the deck or the hand.
 	 */

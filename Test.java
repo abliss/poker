@@ -11,13 +11,17 @@ import com.google.common.collect.Lists;
 class Test {
     
     public static void main(String[] argv) {
-        Deck deck = new Deck().shuffle(new Random(0));
-        List<Card> list = new ArrayList<Card>(3);
-        System.out.println("____ DECK ____" + deck.asList());
+        System.out.println(Hand.getHandValues().size());
+
+            /*
+        //System.out.println("____ DECK ____" + deck.asList());
+        System.out.println("____ FAST DISTRO ____" + new Date());
+        System.out.println(Distribution.generatePat());
         System.out.println("____ FLAT DISTRO ____" + new Date());
         System.out.println(Distribution.generate(list, deck));
         System.out.println("____  PAT DISTRO ____" + new Date());
         System.out.println(Strategies.getDistribution(Strategies.PatStrategy, null));
         System.out.println("____ " + new Date());
+            */
     }
 }

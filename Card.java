@@ -1,3 +1,7 @@
+import java.util.List;
+import java.util.Iterator;
+import com.google.common.collect.Lists;
+
 class Card implements Comparable {
 	public enum Suit {
 		CLUB {public String toString() { return "c";}},
@@ -22,8 +26,8 @@ class Card implements Comparable {
 		KING {public String toString() { return "K";}};
 	}
 
-	Rank rank;
-	Suit suit;
+	private final Rank rank;
+	private final Suit suit;
 
 	Card(Rank r, Suit s) {
 		this.rank = r;
@@ -67,4 +71,35 @@ class Card implements Comparable {
 		}
 		return this.suit.ordinal() - other.getSuit().ordinal();
 	}
+
+    /**
+     * Returns the given list of cards, but with suit abstracted out. i.e.:
+     * <ol>
+     * <li>for all i and j, out[i].suit == out[j].suit iff in[i].suit == in[j].suit, and</li>
+     * <li>if you scan forward in the list, noting each suit the first time it appears, the suits 
+     *     you note will be in ascending order.</li>
+     * </ol>
+     *
+     * this guarantees that if two cardlists are isomorphic modulo suit
+     * permutations, their sutified versions will be identical.
+     */
+    public static List<Card> suitify (List<Card> in) {
+        List<Card> out = Lists.newArrayListWithExpectedSize(in.size());
+        int unusedSuit = 0;
+        for (Card inCard : in) {
+            Suit outSuit = null;
+            for (int i = 0; i < out.size(); i++) {
+                if (inCard.getSuit() == in.get(i).getSuit()) {
+                    outSuit = out.get(i).getSuit();
+                    break;
+                }
+            }
+            if (outSuit == null) {
+                outSuit = Suit.values()[unusedSuit++];
+            }
+            out.add(new Card(inCard.getRank(), outSuit));
+        }
+        return out;
+    }
+
 }
