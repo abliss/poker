@@ -1,9 +1,11 @@
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Iterables;
@@ -16,10 +18,10 @@ import com.google.common.collect.TreeMultiset;
 
 class Distribution implements Comparable<Distribution> {
 	private Multiset<Hand> hands = TreeMultiset.create();
-
-    public Distribution() {
+    /** Empty distribution */
+	public Distribution() {
     }
-    
+
 	public Distribution(Collection<Hand> hands) {
 		this.hands.addAll(hands);
 	}
@@ -36,16 +38,25 @@ class Distribution implements Comparable<Distribution> {
 	 * Generate all possible hands that can be made by drawing to a partial hand from the given deck.
 	 * Does not modify the deck or the hand.
 	 */
-	public static Distribution generate(Collection<Card> partialHand, Deck deck) {	    
+	public static Distribution generate(Collection<Card> partialHand, Deck deck) {
+         return generate(partialHand, deck.asList());
+    }
+    
+	public static Distribution generate(Collection<Card> partialHand, List<Card> deck) {
 	    if (partialHand.size() == 4) {
 	    	return new Distribution(Lists.newArrayList(new Hand(partialHand)));
 	    }
+        int deckSize = deck.size();
 	    Multiset<Hand> possibleHands = HashMultiset.create();
-        for (Card c : deck.asList()) {
+        for (int i = 0; i < deckSize; i++) {
+            Card c = deck.get(i);
             Set<Card> partialPlusDraw = Sets.newHashSet(partialHand);
             partialPlusDraw.add(c);
-            possibleHands.addAll(Distribution.generate(partialPlusDraw, deck.without(c)).getHands());
+            possibleHands.addAll(
+                 Distribution.generate(
+                      partialPlusDraw, deck.subList(i + 1, deckSize)).getHands());
         }
+
 	    return new Distribution(possibleHands);
 	}
 	
