@@ -56,7 +56,7 @@ class Strategies {
      * Finds the winningest strategy against a given strategy on a given hand.  
      */
     public static <T> List<Card> bestDraw(Hand hand, Deck deck, Strategy<T> other, T info) {
-        //System.out.println("XXXX bestDraw of hand " + hand);
+        System.out.println("XXXX bestDraw of hand " + hand + ":" + (System.currentTimeMillis() - Test.START)) ;
         List<Card> bestKeepers = null;
         float bestScore = -2.0f;
         for (int i = 0; i < 16; i++) {  // all possible draws
@@ -75,7 +75,7 @@ class Strategies {
                 bestKeepers = keepers;
             }
         }
-        //System.out.println("XXXX Returning best " + bestKeepers + " score= " + bestScore);
+        System.out.println("XXXX Returning best " + bestKeepers + " score= " + bestScore + ":" + (System.currentTimeMillis() - Test.START));
         return bestKeepers;
     }
 
@@ -86,7 +86,7 @@ class Strategies {
                                        float threshhold) {
         float totalScore = 0;
         int count;
-        //System.out.println("Scoring Draw to " + kept + " at " + new Date());
+        System.out.println("Scoring Draw to " + kept  + ":" + (System.currentTimeMillis() - Test.START));
         if (kept.size() == 4) {
             totalScore = scoreHand(kept, deck, other, info, threshhold);
             count = 1;
@@ -183,7 +183,7 @@ class Strategies {
             throw new RuntimeException("Bad size for kept: " + kept.size());
         }
         float score = totalScore / (float) count;
-        //System.out.println("Scoring Draw to " + kept + " as " + totalScore + "/" + count + "=  " + score + "  at " + new Date());
+        System.out.println("Scoring Draw to " + kept + " as " + totalScore + "/" + count + "=  " + score  + ":" + (System.currentTimeMillis() - Test.START));
         return score;
 
     }
@@ -193,18 +193,20 @@ class Strategies {
      */
     private static <T> float scoreHand(List<Card> handCards, Deck deck, Strategy<T> other, T info,
                                        float threshhold) {
-        //System.out.println("Scoring " + handCards + " against " + deck.asList() + " at " + new Date());
+        //System.out.println("Scoring " + handCards + " against " + deck.asList()  + ":" + (System.currentTimeMillis() - Test.START));
         Hand myHand = new Hand(handCards);
         int wins = 0;
         int losses = 0;
         int total = 0;
         // Eir hands are in increasing order; once beaten, we stay beaten.
         boolean check = true;
+        int count = 0;
         for (Multiset.Entry<Hand> eirHands : deck.allSuitifiedHands().entrySet()) {
             // TODO: binary search
             int winner = -1;
             if (check) {
                 winner = myHand.compareTo(eirHands.getElement());
+                count++;
             }
             int eirCount = eirHands.getCount();
             if (winner > 0) {
@@ -217,7 +219,7 @@ class Strategies {
             // TODO: thresh check
         }
         float score = ((float) (wins - losses)) / total;
-        //System.out.println("Scoring " + myHand + " as " + score + " at " + new Date());
+        System.out.println("Scoring " + myHand + " as " + score + " count=" + count + "  :" + (System.currentTimeMillis() - Test.START));
         return score;
     }
 

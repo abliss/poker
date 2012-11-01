@@ -9,12 +9,12 @@ import java.util.List;
 import com.google.common.collect.Lists;
 
 class Test {
-    
+    public static long START = System.currentTimeMillis();
     public static void main(String[] argv) {
         for (int j = 0; j < 10; j++) {
             Deck deck = new Deck();
             deck.shuffle(new Random(j));
-            for (int i = 0; i < 39; i++) {
+            for (int i = 0; i < 30; i++) {
                 deck.draw();
             }
             System.out.println("____ DECK ____" + deck.asList());
@@ -25,13 +25,13 @@ class Test {
         }
             /*
         //System.out.println("____ DECK ____" + deck.asList());
-        System.out.println("____ FAST DISTRO ____" + new Date());
+        System.out.println("____ FAST DISTRO ____" + (System.currentTimeMillis() - START)));
         System.out.println(Distribution.generatePat());
-        System.out.println("____ FLAT DISTRO ____" + new Date());
+        System.out.println("____ FLAT DISTRO ____" + System.currentTimeMillis());
         System.out.println(Distribution.generate(list, deck));
-        System.out.println("____  PAT DISTRO ____" + new Date());
+        System.out.println("____  PAT DISTRO ____" + System.currentTimeMillis());
         System.out.println(Strategies.getDistribution(Strategies.PatStrategy, null));
-        System.out.println("____ " + new Date());
+        System.out.println("____ " + System.currentTimeMillis());
             */
     }
 }

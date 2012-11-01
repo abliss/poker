@@ -24,8 +24,8 @@ class Hand implements Comparable<Hand> {
                 for (int j = i + 1; j < deck.size(); ++j) {
                     for (int k = j + 1; k < deck.size(); ++k) {
                         for (int l = k + 1; l < deck.size(); ++l) {
-                            Hand h = new Hand(Card.suitify(deck.cardsAt(i, j, k, l)));
-                            handValues.put(h, ImmutableList.copyOf(h.playableHand()));
+                            Hand h = new Hand(deck.cardsAt(i, j, k, l));
+                            handValues.put(h, ImmutableList.copyOf(h.playableHandImpl()));
                         }
                     }
                 }
@@ -104,8 +104,8 @@ class Hand implements Comparable<Hand> {
 	 * 0 if they're the same
 	 */
 	@Override public int compareTo(Hand otherHand) {
-		List<Card> thisHand = this.playableHand(); //getHandValues().get(this);
-		List<Card> thatHand = otherHand.playableHand(); //getHandValues().get(otherHand);
+		List<Card> thisHand = playableHand();
+		List<Card> thatHand = otherHand.playableHand();
 		if (thisHand == null || thatHand == null) {
 		    
 		    return 0;
@@ -148,8 +148,22 @@ class Hand implements Comparable<Hand> {
 	 * Return the playable cards in a hand.  Assumes that the hand is in sorted order.
 	 */
 	public List<Card> playableHand() {
+        return getHandValues().get(this);
+        //return playableHandImpl();
+    }
+    static long XXXSpent = 0;
+    static void log(long time) {
+        XXXSpent += time;
+        if (XXXSpent > 1000) {
+            System.out.println("Logged time: " + XXXSpent);
+            XXXSpent = 0;
+        }
+    }
+	private List<Card> playableHandImpl() {
+        long now = System.currentTimeMillis();
 		// 4 cards
 		if (canPlay(cards)) {
+            log(System.currentTimeMillis() - now);
 			return cards;
 		}
 
@@ -180,7 +194,9 @@ class Hand implements Comparable<Hand> {
 		if (canPlay(current)) { return current; }
 
 		// 1 card
-		return ImmutableList.of(cards.get(0));
+        List<Card> ret = ImmutableList.of(cards.get(0));
+        log(System.currentTimeMillis() - now);
+		return ret;
 	}
 
 	public List<Card> getCards() {
