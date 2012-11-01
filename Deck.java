@@ -1,9 +1,18 @@
+import com.google.common.collect.HashMultiset;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.TreeMultiset;
+import com.google.common.collect.Multiset;
+import com.google.common.collect.Multisets;
+import com.google.common.collect.Sets;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.*;
 
 
 class Deck {
@@ -110,4 +119,30 @@ class Deck {
 		return this;
 	}
 
+    /**
+     * All possible sutified 4-card hands that this deck can deal, with
+     * frequency counts.
+     */
+    public TreeMultiset<Hand> allSuitifiedHands() {
+        TreeMultiset<Hand> suitifiedHands = TreeMultiset.create();
+        for (int i = 0; i < cards.size(); ++i) {
+            for (int j = i + 1; j < cards.size(); ++j) {
+                for (int k = j + 1; k < cards.size(); ++k) {
+                    for (int l = k + 1; l < cards.size(); ++l) {
+                        Hand h = new Hand(Card.suitify(cardsAt(i, j, k, l)));
+                        suitifiedHands.add(h);
+                    }
+                }
+            }
+        }
+        return suitifiedHands;
+    }
+
+    /**
+     * All possible 1-card draws.
+     */
+    public Collection<List<Card>> all1CardDraws() {
+        return getCards();
+        
+    }
 }

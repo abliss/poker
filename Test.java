@@ -11,7 +11,10 @@ import com.google.common.collect.Lists;
 class Test {
     
     public static void main(String[] argv) {
-        System.out.println(Hand.getHandValues().size());
+        Deck d = new Deck();
+        d.shuffle(new Random(0));
+        Hand h = new Hand(d);
+        Strategies.bestDraw(h, d, null, null);
 
             /*
         //System.out.println("____ DECK ____" + deck.asList());

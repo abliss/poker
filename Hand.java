@@ -3,15 +3,18 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.HashMultiset;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Multiset;
+import com.google.common.collect.Multisets;
 
 class Hand implements Comparable<Hand> {
-
-	private static Map<Hand, List<Card>> handValues = null;
-
-	public static Map<Hand, List<Card>> getHandValues() {
+    
+  private static Map<Hand, List<Card>> handValues = null;
+  
+  public static Map<Hand, List<Card>> getHandValues() {
         if (handValues == null) {
             handValues = Maps.newHashMapWithExpectedSize(270725);
             // Get playable hand for every hand
@@ -36,8 +39,9 @@ class Hand implements Comparable<Hand> {
             //System.out.println("all hands:\n" + new Distribution(handValues.keySet()).toString());
         }
         return handValues;
-	}
+  }
 
+  
 	/** Cards in the hand in sorted order */
 	private final List<Card> cards;
 
