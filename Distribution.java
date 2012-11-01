@@ -16,10 +16,13 @@ import com.google.common.collect.TreeMultiset;
 
 class Distribution implements Comparable<Distribution> {
 	private Multiset<Hand> hands = TreeMultiset.create();
-	
+
+    public Distribution() {
+    }
+    
 	public Distribution(Collection<Hand> hands) {
 		this.hands.addAll(hands);
-	};
+	}
 	
 	public void merge(Distribution d) {
 		this.hands.addAll(d.getHands());
