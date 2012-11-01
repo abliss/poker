@@ -137,12 +137,7 @@ class Deck {
         }
         return suitifiedHands;
     }
-
-    /**
-     * All possible 1-card draws.
-     */
-    public Collection<List<Card>> all1CardDraws() {
-        return getCards();
-        
+    public Card cardAt(int i) {
+        return cards.get(i);
     }
 }

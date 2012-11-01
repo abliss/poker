@@ -83,7 +83,7 @@ class Strategies {
         } else if (kept.size() == 3) {
             float totalScore = 0;
             int count = deck.size();
-            for (Card c : deck) {
+            for (Card c : deck.asList()) {
                 kept.add(c);
                 totalScore += scoreHand(kept, deck.without(c), other, info, -2.0f);
                 // TODO: thresh check
@@ -161,7 +161,7 @@ class Strategies {
                     for (int k = j + 1; k < size; k++) {
                         Card draw3 = deck.cardAt(k);
                         kept.add(draw3);
-                        tempDeck3 = tempDeck3.without(draw3);
+                        tempDeck3 = tempDeck2.without(draw3);
                         for (int l = k + 1; l < size; l++) {
                             Card draw4 = deck.cardAt(l);
                             kept.add(draw4);
@@ -188,13 +188,14 @@ class Strategies {
      */
     private static <T> float scoreHand(List<Card> handCards, Deck deck, Strategy<T> other, T info,
                                        float threshhold) {
+        System.out.println("Scoring " + handCards + " at " + new Date());
         Hand myHand = new Hand(handCards);
         int wins = 0;
         int losses = 0;
         int total = 0;
         // Eir hands are in increasing order; once beaten, we stay beaten.
         boolean check = true;
-        for (Multiset.Entry<Hand> eirHands : deck.allSuitifiedHands()) {
+        for (Multiset.Entry<Hand> eirHands : deck.allSuitifiedHands().entrySet()) {
             // TODO: binary search
             int winner = -1;
             if (check) {
@@ -210,7 +211,9 @@ class Strategies {
             total += eirCount;
             // TODO: thresh check
         }
-        return ((float) wins) / total;
+        float score = ((float) (wins - losses)) / total;
+        System.out.println("Scoring " + handCards + " as " + score + " at " + new Date());
+        return score;
     }
 
 }
