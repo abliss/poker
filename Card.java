@@ -1,5 +1,6 @@
 import java.util.List;
 import java.util.Iterator;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
 class Card implements Comparable {
@@ -81,9 +82,9 @@ class Card implements Comparable {
      * </ol>
      *
      * this guarantees that if two cardlists are isomorphic modulo suit
-     * permutations, their sutified versions will be identical.
+     * permutations, their suitified versions will be identical.
      */
-    public static List<Card> suitify (List<Card> in) {
+    public static List<Card> suitify(List<Card> in) {
         List<Card> out = Lists.newArrayListWithExpectedSize(in.size());
         int unusedSuit = 0;
         for (Card inCard : in) {
@@ -102,4 +103,31 @@ class Card implements Comparable {
         return out;
     }
 
+    /**
+     * Suitify multiple lists of cards, using the same transformation on each.
+     */
+    public static List<List<Card>> multiSuitify(List<List<Card>> inputLists) {
+	List<Card> suitified = suitify(Lists.newArrayList(Iterables.concat(inputLists)));
+	List<List<Card>> allOutput = Lists.newArrayListWithExpectedSize(inputLists.size());
+	int index = 0;
+	for (List<Card> inputList : inputLists) {
+	    List<Card> outputList = Lists.newArrayListWithExpectedSize(inputList.size());
+	    outputList.addAll(suitified.subList(index, index + inputList.size()));
+	    allOutput.add(outputList);
+	    index = index + inputList.size();
+	}
+	return allOutput;
+    }
+    /*
+    public static void testMultiSuitify() {
+	List<Card> hand = Lists.newArrayList(new Card(Rank.ACE, Suit.SPADE), new Card(Rank.TWO, Suit.HEART),
+					     new Card(Rank.THREE, Suit.DIAMOND), new Card(Rank.FOUR, Suit.CLUB));
+	List<Card> hand2 = Lists.newArrayList(new Card(Rank.FIVE, Suit.CLUB), new Card(Rank.SIX, Suit.SPADE),
+					     new Card(Rank.SEVEN, Suit.HEART), new Card(Rank.EIGHT, Suit.DIAMOND));
+	System.out.println(hand);
+	System.out.println(hand2);
+	
+	System.out.println(multiSuitify(Lists.newArrayList(hand, hand2)));	
+    }
+    */
 }
