@@ -88,7 +88,6 @@ class Strategies {
                 totalScore += scoreHand(kept, deck.without(c), other, info, -2.0f);
                 // TODO: thresh check
                 kept.remove(3);
-                count++;
             }
             return totalScore / (float) count;
         } else if (kept.size() == 2) {
@@ -107,7 +106,6 @@ class Strategies {
                     tempDeck2 = tempDeck1.without(draw2);
                     totalScore += scoreHand(kept, tempDeck2, other, info, -2.0f);
                     // TODO: thresh check
-                    count++;
                     kept.remove(3);
                 }
                 kept.remove(2);
@@ -134,7 +132,6 @@ class Strategies {
                         tempDeck3 = tempDeck2.without(draw3);
                         totalScore += scoreHand(kept, tempDeck3, other, info, -2.0f);
                         // TODO: thresh check
-                        count++;
                         kept.remove(3);
                     }
                     kept.remove(2);
@@ -168,7 +165,6 @@ class Strategies {
                             tempDeck4 = tempDeck3.without(draw4);
                             totalScore += scoreHand(kept, tempDeck4, other, info, -2.0f);
                             // TODO: thresh check
-                            count++;
                             kept.remove(3);
                         }
                         kept.remove(2);
