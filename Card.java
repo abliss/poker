@@ -3,7 +3,7 @@ import java.util.Iterator;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
-class Card implements Comparable {
+class Card implements Comparable<Card> {
 	public enum Suit {
 		CLUB {public String toString() { return "c";}},
 		DIAMOND {public String toString() {return "d";}},
@@ -62,11 +62,7 @@ class Card implements Comparable {
 		return 31 * rank.hashCode() + suit.hashCode();
 	}
 
-	public int compareTo(Object otherCard) {
-		if (!(otherCard instanceof Card)) {
-			throw new RuntimeException("Can't compare Card to " + otherCard);
-		}
-		Card other = (Card) otherCard;
+	public int compareTo(Card other) {
 		if (this.rank.ordinal() != other.getRank().ordinal()) {
 			return this.rank.ordinal() - other.getRank().ordinal();
 		}

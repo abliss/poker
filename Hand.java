@@ -47,7 +47,7 @@ class Hand implements Comparable<Hand> {
 
 	Hand(Card c1, Card c2, Card c3, Card c4) {
 		cards = Lists.newArrayList(c1, c2, c3, c4);
-		Collections.sort(cards);
+		Collections.<Card>sort(cards);
 	}
 
     /** Deal a new hand from the top of the given deck. */

@@ -14,14 +14,15 @@ class Test {
         for (int j = 0; j < 10; j++) {
             Deck deck = new Deck();
             deck.shuffle(new Random(j));
-            for (int i = 0; i < 30; i++) {
+            for (int i = 0; i < 40; i++) {
                 deck.draw();
             }
             System.out.println("____ DECK ____" + deck.asList());
             Hand h = new Hand(deck);
             System.out.println("____ HAND ____" + h);
+            List<Card> keep = Strategies.bestDraw(h, deck, null, null);
             System.out.print("____ KEEP ____");
-            System.out.println(Strategies.bestDraw(h, deck, null, null));
+            System.out.println(keep);
         }
             /*
         //System.out.println("____ DECK ____" + deck.asList());

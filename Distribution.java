@@ -111,8 +111,8 @@ class Distribution implements Comparable<Distribution> {
         }
         
         // Discard 4
-        possibleDistributions.put(Collections.EMPTY_LIST,
-            Distribution.generate(Collections.EMPTY_LIST, deck));
+        possibleDistributions.put(Collections.<Card>emptyList(),
+                                  Distribution.generate(Collections.<Card>emptyList(), deck));
         return possibleDistributions;
     }
     
