@@ -11,12 +11,22 @@ import com.google.common.collect.Lists;
 class Test {
     public static long START = System.currentTimeMillis();
     public static void main(String[] argv) {
+        int seed = 0;
+        try {
+            seed = Integer.parseInt(argv[0]);
+        } catch (RuntimeException e) {
+            System.err.println("Usage: java Test random_seed");
+            return;
+        }
+        System.out.println("Starting with seed " + seed + " at " + new Date());
         for (int j = 0; j < 10; j++) {
             Deck deck = new Deck();
-            deck.shuffle(new Random(j));
+            deck.shuffle(new Random(seed + j));
+            /*
             for (int i = 0; i < 40; i++) {
                 deck.draw();
             }
+            */
             System.out.println("____ DECK ____" + deck.asList());
             Hand h = new Hand(deck);
             System.out.println("____ HAND ____" + h);
