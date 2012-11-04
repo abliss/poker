@@ -1,6 +1,7 @@
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -42,14 +43,9 @@ class Distribution implements Comparable<Distribution> {
         Deck deck = new Deck();
         long startTime = System.currentTimeMillis();
         int size = deck.size();
-        for (int i = size - 1; i >= 0; i--) {
-            for (int j = i - 1; j >= 0; --j) {
-                for (int k = j - 1; k >= 0; --k) {
-                    for (int l = k - 1; l >= 0; --l) {
-                        hands.add(new Hand(deck.cardsAt(i, j, k, l)));
-                    }
-                }
-            }
+        for (Collection<Card> set : deck.subsetsOfSize4()) {
+            Hand h =  Hand.from(set);
+            hands.add(h);
         }
         Distribution dist = new Distribution(hands);
         System.out.println("Pat distro hands: " + hands.size());
@@ -62,24 +58,25 @@ class Distribution implements Comparable<Distribution> {
      * Does not modify the deck or the hand.
      */
     public static Distribution generate(Collection<Card> partialHand, Deck deck) {
-         return generate(partialHand, deck.asList());
+        return generate(partialHand, deck, null);
     }
     
-    public static Distribution generate(Collection<Card> partialHand, List<Card> deck) {
+    public static Distribution generate(Collection<Card> partialHand, Deck deck, Card after) {
         if (partialHand.size() == 4) {
-            return new Distribution(Lists.newArrayList(new Hand(partialHand)));
+            return new Distribution(Lists.newArrayList(Hand.from(partialHand)));
         }
         int deckSize = deck.size();
         Multiset<Hand> possibleHands = HashMultiset.create();
-        for (int i = 0; i < deckSize; i++) {
-            Card c = deck.get(i);
-            Set<Card> partialPlusDraw = Sets.newHashSet(partialHand);
+        /*XXX
+        Iterator<Card> iter = deck.iterator(after);
+        while (iter.hasNext()) {
+            Card c = iter.next();
+            Set<Card> partialPlusDraw = EnumSet.copyOf(partialHand);
             partialPlusDraw.add(c);
             possibleHands.addAll(
-                 Distribution.generate(
-                      partialPlusDraw, deck.subList(i + 1, deckSize)).getHands());
+                 Distribution.generate(partialPlusDraw, deck, c).getHands());
         }
-
+        */
         return new Distribution(possibleHands);
     }
     

@@ -21,16 +21,11 @@ class Test {
         System.out.println("Starting with seed " + seed + " at " + new Date());
         for (int j = 0; j < 10; j++) {
             Deck deck = new Deck();
-            deck.shuffle(new Random(seed + j));
-            /*
-            for (int i = 0; i < 40; i++) {
-                deck.draw();
-            }
-            */
-            System.out.println("____ DECK ____" + deck.asList());
-            Hand h = new Hand(deck);
+            //deck.shuffle(new Random(seed + j));
+            System.out.println("____ DECK ____" + deck);
+            Hand h = Hand.from(deck);
             System.out.println("____ HAND ____" + h);
-            List<Card> keep = Strategies.bestDraw(h, deck, null, null);
+            Collection<Card> keep = Strategies.bestDraw(h, deck, null, null);
             System.out.print("____ KEEP ____");
             System.out.println(keep);
         }

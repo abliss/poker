@@ -10,28 +10,22 @@ import com.google.common.collect.Sets;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Random;
 import java.util.*;
 
 
-class Deck {
-	List<Card> cards;
+class Deck implements Iterable<Card> {
+
+	EnumSet<Card> cards;
 
 	Deck() {
-		cards = Lists.newArrayListWithExpectedSize(52);
-		for (Card.Rank r : Card.Rank.values()) {
-			for (Card.Suit s : Card.Suit.values()) {
-				cards.add(new Card(r, s));
-			}
-		}
+		cards = EnumSet.allOf(Card.class);
 	}
 
-	Deck(List<Card> cards) {
-		this.cards = Lists.newArrayListWithExpectedSize(cards.size());
-		for (Card c : cards) {
-			this.cards.add(c);
-		}
+	Deck(EnumSet<Card> cards) {
+		this.cards = cards.clone();
 	}
 
 	public Card remove(Card c) {
@@ -42,9 +36,9 @@ class Deck {
 			throw new IllegalArgumentException("Deck doesn't contain " + c);
 		}
 	}
-	
+
 	public Card getCard(Card.Rank rank, Card.Suit suit) {
-		return this.remove(new Card(rank, suit));
+		return this.remove(Card.from(rank, suit));
 	}
 
 	/**
@@ -56,28 +50,32 @@ class Deck {
 		return d;
 	}
 
+	public Deck without(Collection<Card> c) {
+		Deck d = new Deck(cards);
+		d.cards.removeAll(c);
+		return d;
+	}
+
 	public String toString() {
-		StringBuilder s = new StringBuilder();
-		for (Card c : cards) {
-			s.append(c.toString() + "\n");
-		}
-		return s.toString();
+        return cards.toString();
 	}
 
 	public int size() {
 		return cards.size();
 	}
 
+    /*
 	public List<Card> peek(int numCards) {
 		List<Card> peeked = Lists.newArrayListWithExpectedSize(numCards);
 		for (int i = 0; i < numCards; i++) {
-			peeked.add(cards.get(i));
+			peeked.add(cardAt(i));
 		}
 		return peeked;
 	}
-	
+    */
+
 	public Card draw() {
-		Card c = cards.get(0);
+		Card c = cardAt(0);
 		this.remove(c);
 		return c;
 	}
@@ -85,37 +83,37 @@ class Deck {
 	public List<Card> draw(int numCards) {
 		List<Card> drawn = Lists.newArrayListWithExpectedSize(numCards);
 		for (int i = 0; i < numCards; ++i) {
-			Card c = cards.get(0);
+			Card c = cardAt(0);
 			this.remove(c);
 			drawn.add(c);
 		}
 		return drawn;
 	}
-
+    /*
 	public List<Card> cardsAt(int i, int j, int k, int l) {
 		List<Card> list = Lists.newArrayListWithExpectedSize(4);
-		list.add(cards.get(i));
-		list.add(cards.get(j));
-		list.add(cards.get(k));
-		list.add(cards.get(l));
+		list.add(cardAt(i));
+		list.add(cardAt(j));
+		list.add(cardAt(k));
+		list.add(cardAt(l));
 		return list;
 	}
-
+    */
+    /*
 	public List<Card> deal(int numCards) {
 		List<Card> dealt = cards.subList(0, numCards);
 		cards = cards.subList(numCards, cards.size());
 		return dealt;
 	}
-	public List<Card> asList() {
-		return ImmutableList.copyOf(cards);
-	}
-
+    */
 	public Deck shuffle() {
-		Collections.shuffle(cards);
+        //TODO: XXX
+		//Collections.shuffle(cards);
 		return this;
 	}
 	public Deck shuffle(Random rand) {
-		Collections.shuffle(cards, rand);
+        // TODO: XXX
+		//Collections.shuffle(cards, rand);
 		return this;
 	}
 
@@ -125,19 +123,70 @@ class Deck {
      */
     public Multiset<Hand> allSuitifiedHands() {
         Multiset<Hand> suitifiedHands = HashMultiset.create();
-        for (int i = 0; i < cards.size(); ++i) {
-            for (int j = i + 1; j < cards.size(); ++j) {
-                for (int k = j + 1; k < cards.size(); ++k) {
-                    for (int l = k + 1; l < cards.size(); ++l) {
-                        Hand h = new Hand(Card.suitify(cardsAt(i, j, k, l)));
-                        suitifiedHands.add(h);
+        Card[] cardArr = new Card[4];
+        for (List<Card> set : subsetsOfSize4()) {
+            Hand h = Hand.from(Card.suitify(set.toArray(cardArr)));
+            suitifiedHands.add(h);
+        }
+        return suitifiedHands;
+    }
+
+    public Card cardAt(int i) {
+        int index = 0;
+        for (Card c : cards) {
+            if (index++ == i) {
+                return c;
+            }
+        }
+        throw new RuntimeException("Deck index out of bounds: " + i + " >= " + cards.size());
+    }
+
+    public Iterator<Card> iterator() {
+        return cards.iterator();
+    }
+
+    public Collection<List<Card>> subsetsOfSize2() {
+        List<List<Card>> sets = Lists.newArrayListWithExpectedSize(1326);
+        Card[] cardArr = cards.toArray(new Card[0]);
+        int len = cardArr.length;
+        for (int i = 0; i < len - 1; i++) {
+            for (int j = i + 1; j < len; j++) {
+                sets.add(Lists.newArrayList(cardArr[i], cardArr[j]));
+            }
+        }
+        return sets;
+    }
+    public Collection<List<Card>> subsetsOfSize3() {
+        List<List<Card>> sets = Lists.newArrayListWithExpectedSize(22100);
+        Card[] cardArr = cards.toArray(new Card[0]);
+        int len = cardArr.length;
+        for (int i = 0; i < len - 2; i++) {
+            for (int j = i + 1; j < len - 1; j++) {
+                for (int k = j + 1; k < len; k++) {
+                    sets.add(Lists.newArrayList(cardArr[i], cardArr[j], cardArr[k]));
+                }
+            }
+        }
+        return sets;
+    }
+    
+    /**
+     * Guarantees each List will be sorted.
+     */
+    public Collection<List<Card>> subsetsOfSize4() {
+        List<List<Card>> sets = Lists.newArrayListWithExpectedSize(270725);
+        Card[] cardArr = cards.toArray(new Card[0]);
+        int len = cardArr.length;
+        for (int i = 0; i < len - 3; i++) {
+            for (int j = i + 1; j < len - 2; j++) {
+                for (int k = j + 1; k < len - 1; k++) {
+                    for (int l = k + 1; l < len; l++) {
+                        sets.add(Lists.newArrayList(cardArr[i], cardArr[j], cardArr[k], cardArr[l]));
                     }
                 }
             }
         }
-        return suitifiedHands;
+        return sets;
     }
-    public Card cardAt(int i) {
-        return cards.get(i);
-    }
+
 }
