@@ -1,8 +1,20 @@
 import com.google.common.collect.*;
 import java.util.*;
-
+import java.util.concurrent.*;
 
 class Strategies {
+
+    static class ScoreAndKeepers {
+	public float score;
+	public List<Card> keepers;
+	public ScoreAndKeepers(float score, List<Card> keepers) {
+	    this.score = score;
+	    this.keepers = keepers;
+	}
+    }
+
+    private static final ExecutorService executor = Executors.newFixedThreadPool(4);
+
     /**
      * Never draws.
      */
@@ -52,29 +64,46 @@ class Strategies {
         return distro;
     }
     
+
     /**
      * Finds the winningest strategy against a given strategy on a given hand.  
      */
-    public static <T> List<Card> bestDraw(Hand hand, Deck deck, Strategy<T> other, T info) {
+    public static <T> List<Card> bestDraw(final Hand hand, final Deck deck, final Strategy<T> other, final T info) {
         System.out.println("XXXX bestDraw of hand " + hand + ":" + (System.currentTimeMillis() - Test.START)) ;
         List<Card> bestKeepers = null;
         float bestScore = -2.0f;
+
+	final List<Future<ScoreAndKeepers>> tasks = Lists.newArrayList();
+
         for (int i = 0; i < 16; i++) {  // all possible draws
-            List<Card> keepers = Lists.newArrayListWithExpectedSize(4);
-            for (int j = 0; j < 4; j++) {
-                if ((i & (1 << j)) > 0) {
-                    keepers.add(hand.cardAt(j));
-                }
-            }
-            //System.out.println("XXXX Considering keeping: " + keepers);
-            float score = scoreDraw(keepers, deck, other, info, bestScore);
-            //System.out.println("XXXX Considering keeping: " + keepers + " score= " + score);
-            if (score > bestScore) {
-                //System.out.println("XXXX New best!: " + keepers + " score= " + score);
-                bestScore = score;
-                bestKeepers = keepers;
-            }
+	    final int i2 = i;
+	    tasks.add(executor.submit(new Callable() {
+		    public ScoreAndKeepers call() {
+			List<Card> keepers = Lists.newArrayListWithExpectedSize(4);
+			for (int j = 0; j < 4; j++) {
+			    if ((i2 & (1 << j)) > 0) {
+				keepers.add(hand.cardAt(j));
+			    }
+			}
+			//System.out.println("XXXX Considering keeping: " + keepers);
+			// TODO: use bestScore as threshold
+			float score = scoreDraw(keepers, deck, other, info, -2.0f);
+			return new ScoreAndKeepers(score, keepers);
+		    }}));
+
         }
+	for (Future<ScoreAndKeepers> f : tasks) {
+	    try {
+		if (f.get().score > bestScore) {
+		    bestScore = f.get().score;
+		    bestKeepers = f.get().keepers;
+		}
+	    } catch (Exception e) {
+		// catch random thread exceptions and blow up
+		throw new RuntimeException(e);
+	    }
+	}
+
         System.out.println("XXXX Returning best " + bestKeepers + " score= " + bestScore + ":" + (System.currentTimeMillis() - Test.START));
         return bestKeepers;
     }
