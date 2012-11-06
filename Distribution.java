@@ -143,7 +143,7 @@ class Distribution implements Comparable<Distribution> {
             detailedDistribution.put(i, TreeMultiset.<Hand>create());
         }
         for (Hand h : hands) {
-            detailedDistribution.get(h.playableHand().size()).add(h);
+            detailedDistribution.get(h.playableHandSize()).add(h);
         }
         
         for (int i = 2; i <= 4; i++) {

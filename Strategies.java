@@ -13,7 +13,7 @@ class Strategies {
 	}
     }
 
-    private static final ExecutorService executor = Executors.newFixedThreadPool(2);
+    private static final ExecutorService executor = Executors.newFixedThreadPool(4);
 
     /**
      * Never draws.
@@ -166,7 +166,7 @@ class Strategies {
             throw new RuntimeException("Bad size for kept: " + kept.size());
         }
         float score = totalScore / (float) count;
-        //System.out.println("Scoring Draw to " + kept + " as " + totalScore + "/" + count + "=  " + score  + ":" + (System.currentTimeMillis() - Test.START));
+        System.out.println("Scoring Draw to " + kept + " as " + totalScore + "/" + count + "=  " + score  + ":" + (System.currentTimeMillis() - Test.START));
         return score;
 
     }
@@ -180,9 +180,9 @@ class Strategies {
         Hand myHand = Hand.from(handCards);
         int wins = 0;
         int losses = 0;
-        Multiset<Hand> distro = deck.allSuitifiedHands();
-        int total = distro.size();
-        for (Multiset.Entry<Hand> eirHands : distro.entrySet()) {
+        Multiset<Integer> distro = deck.allPlayableCodes();
+        int total = distro.size(); // TODO: precompute
+        for (Multiset.Entry<Integer> eirHands : distro.entrySet()) {
             int winner = winner = myHand.compareTo(eirHands.getElement());
             int eirCount = eirHands.getCount();
             if (winner > 0) {

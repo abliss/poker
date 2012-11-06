@@ -13,17 +13,21 @@ import com.google.common.collect.Multisets;
 
 class Hand implements Comparable<Hand> {
     
-  private static Map<Hand, List<Card>> handValues = null;
+  private static Map<Hand, Integer> handValues = null;
   private int hashCode = 0;
-  public static Map<Hand, List<Card>> getHandValues() {
+  private static Map<Integer, Hand> hashes = null;
+  public static Map<Hand, Integer> getHandValues() {
         if (handValues == null) {
             handValues = Maps.newHashMapWithExpectedSize(270725);
+            hashes = Maps.newHashMapWithExpectedSize(270725);
             // Get playable hand for every hand
             Deck deck = new Deck();
             long startTime = System.currentTimeMillis();
             for (List<Card> set : deck.subsetsOfSize4()) {
                 Hand h = Hand.from(set);
-                handValues.put(h, ImmutableList.copyOf(h.playableHandImpl()));
+                Integer playableCode = h.playableHandCodeImpl();
+                handValues.put(h, playableCode);
+                hashes.put(h.hashCode(), h);
             }
 
             System.out.println(handValues.size());
@@ -77,6 +81,10 @@ class Hand implements Comparable<Hand> {
     public static Hand from(Collection<Card> cardList) {
         return Hand.from(Lists.newArrayList(cardList));
     }
+    public static Hand fromHashCode(Integer hashCode) {
+        getHandValues();
+        return hashes.get(hashCode);
+    }
 
 	public Card cardAt(int index) {
 		return cards[index];
@@ -105,9 +113,7 @@ class Hand implements Comparable<Hand> {
 		}
 		
 		s.append(" (");
-		for (Card card : playableHand()) {
-			s.append(card.getRank());
-		}
+        s.append(decodePlayableHand(playableHandCode()));
 		s.append(")");
 		return s.toString();
 	}
@@ -118,27 +124,12 @@ class Hand implements Comparable<Hand> {
 	 * 0 if they're the same
 	 */
 	@Override public int compareTo(Hand otherHand) {
-		List<Card> thisHand = playableHand();
-		List<Card> thatHand = otherHand.playableHand();
-		if (thisHand == null || thatHand == null) {
-		    
-		    return 0;
-		}
-		if (thisHand.size() > thatHand.size()) {
-			return 1;
-		} else if (thisHand.size() < thatHand.size()) {
-			return -1;
-		}
-		for (int i = thisHand.size() - 1; i >= 0; --i) {
-			if (thisHand.get(i).getRank().ordinal() < thatHand.get(i).getRank().ordinal()) {
-				return 1;
-			} else if (thisHand.get(i).getRank().ordinal() > thatHand.get(i).getRank().ordinal()) {
-				return -1;
-			}
-		}
-		return 0;
+        return this.playableHandCode().compareTo(otherHand.playableHandCode());
 	}
 
+    public int compareTo(Integer otherHandPlayableHandCode) {
+        return this.playableHandCode().compareTo(otherHandPlayableHandCode);
+	}
 
 	/**
 	 * Grossly inefficient check to see if a list of cards is a playable hand.
@@ -158,26 +149,37 @@ class Hand implements Comparable<Hand> {
 
     
 	// test cases - 4c4s9cQc -> 4s9c
+    
+    public static String decodePlayableHand(int playableHand) {
+        StringBuilder s = new StringBuilder();
+        int code = playableHand;
+        for (int i = 0; i < 5; i++) {
+            s.append(Card.Rank.values()[15 - (code & 0xf)]);
+            code >>= 4;
+            if (code == 0) return s.toString();
+        }
+        throw new IllegalArgumentException("Bad playable code: " + playableHand);
+    }
+
 	/**
 	 * Return the playable cards in a hand.  Assumes that the hand is in sorted order.
 	 */
-	public List<Card> playableHand() {
+	public Integer playableHandCode() {
         return getHandValues().get(this);
-        //return playableHandImpl();
     }
-    static long XXXSpent = 0;
-    static void log(long time) {
-        XXXSpent += time;
-        if (XXXSpent > 1000) {
-            System.out.println("Logged time: " + XXXSpent);
-            XXXSpent = 0;
+    private Integer playableHandCodeImpl() {
+        int code = 0;
+        int bucket = 0;
+        for (Card c : playableHandImpl()) {
+            code |= ((15 - c.getRank().ordinal()) << bucket);
+            bucket += 4;
         }
+        return code;
     }
 	private List<Card> playableHandImpl() {
         long now = System.currentTimeMillis();
 		// 4 cards
 		if (canPlay(Lists.newArrayList(cards))) {
-            log(System.currentTimeMillis() - now);
 			return ImmutableList.of(cards);
 		}
 
@@ -209,7 +211,6 @@ class Hand implements Comparable<Hand> {
 
 		// 1 card
         List<Card> ret = ImmutableList.of(cards[0]);
-        log(System.currentTimeMillis() - now);
 		return ret;
 	}
 
@@ -260,18 +261,30 @@ v			for (int j = i + 1; j < deck.size(); ++j) {
 		return hashCode == other.hashCode();
 	}
 
+    /**
+     * Given four cards in increasing order, what would the hash code be of that hand?
+     */
+	public static int hashCode(Card c0, Card c1, Card c2, Card c3) {
+        return c0.ordinal() |
+            (c1.ordinal() << 6) |
+            (c2.ordinal() << 12) |
+            (c3.ordinal() << 18);
+    }
+
 	public int hashCode() {
         if (hashCode == 0) {
-            hashCode =
-                cards[0].ordinal() |
-                (cards[1].ordinal() << 6) |
-                (cards[2].ordinal() << 12) |
-                (cards[3].ordinal() << 18);
+            hashCode = hashCode(cards[0], cards[1], cards[2], cards[3]);
         }
 		return hashCode;
 	}
 
-   
+    public int playableHandSize() {
+        int code = playableHandCode();
+        if (code > (1 << 12)) return 4;
+        if (code > (1 << 8)) return 3;
+        if (code > (1 << 4)) return 2;
+        return 1;
+    }
     /**
      * Create a new hand by keeping only the cards of the given indices, and
      * drawing the rest from the given deck.

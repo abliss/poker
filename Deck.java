@@ -118,17 +118,18 @@ class Deck implements Iterable<Card> {
 	}
 
     /**
-     * All possible sutified 4-card hands that this deck can deal, with
-     * frequency counts.
+     * All possible playable 4-card hands that this deck can deal, with
+     * frequency counts.  (Each Hand is an unspecified representative of all the
+     * equally-playable hands.)
      */
-    public Multiset<Hand> allSuitifiedHands() {
-        Multiset<Hand> suitifiedHands = HashMultiset.create();
+    public Multiset<Integer> allPlayableCodes() {
+        Multiset<Integer> playableHands = HashMultiset.create(18096);
         Card[] cardArr = new Card[4];
-        for (List<Card> set : subsetsOfSize4()) {
-            Hand h = Hand.from(Card.suitify(set.toArray(cardArr)));
-            suitifiedHands.add(h);
+        for (Integer hash : handHashCodes()) {
+            Hand h = Hand.fromHashCode(hash);
+            playableHands.add(h.playableHandCode());
         }
-        return suitifiedHands;
+        return playableHands;
     }
 
     public Card cardAt(int i) {
@@ -187,6 +188,25 @@ class Deck implements Iterable<Card> {
             }
         }
         return sets;
+    }
+
+    /**
+     * Doesn't actually construct all four-card hands, but computes their hashcodes.
+     */
+    public Collection<Integer> handHashCodes() {
+        List<Integer> hashes = Lists.newArrayListWithExpectedSize(270725);
+        Card[] cardArr = cards.toArray(new Card[0]);
+        int len = cardArr.length;
+        for (int i = 0; i < len - 3; i++) {
+            for (int j = i + 1; j < len - 2; j++) {
+                for (int k = j + 1; k < len - 1; k++) {
+                    for (int l = k + 1; l < len; l++) {
+                        hashes.add(Hand.hashCode(cardArr[i], cardArr[j], cardArr[k], cardArr[l]));
+                    }
+                }
+            }
+        }
+        return hashes;
     }
 
 }
