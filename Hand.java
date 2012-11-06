@@ -40,8 +40,7 @@ class Hand implements Comparable<Hand> {
 	/** Cards in the hand in sorted order */
 	private final Card[] cards = new Card[4];
 
-    /** Cards must be sorted already */
-	private Hand(Card c0, Card c1, Card c2, Card c3) {
+	public Hand(Card c0, Card c1, Card c2, Card c3) {
         cards[0] = c0;
         cards[1] = c1;
         cards[2] = c2;

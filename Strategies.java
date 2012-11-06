@@ -13,7 +13,7 @@ class Strategies {
 	}
     }
 
-    private static final ExecutorService executor = Executors.newFixedThreadPool(4);
+    private static final ExecutorService executor = Executors.newFixedThreadPool(2);
 
     /**
      * Never draws.
@@ -69,7 +69,7 @@ class Strategies {
      * Finds the winningest strategy against a given strategy on a given hand.  
      */
     public static <T> Collection<Card> bestDraw(final Hand hand, final Deck deck, final Strategy<T> other, final T info) {
-        System.out.println("XXXX bestDraw of hand " + hand + ":" + (System.currentTimeMillis() - Test.START)) ;
+        //System.out.println("XXXX bestDraw of hand " + hand + ":" + (System.currentTimeMillis() - Test.START)) ;
         Collection<Card> bestKeepers = null;
         float bestScore = -2.0f;
 
@@ -105,7 +105,7 @@ class Strategies {
 	    }
 	}
 
-        System.out.println("XXXX Returning best " + bestKeepers + " score= " + bestScore + ":" + (System.currentTimeMillis() - Test.START));
+    //System.out.println("XXXX Returning best " + bestKeepers + " score= " + bestScore + ":" + (System.currentTimeMillis() - Test.START));
         return bestKeepers;
     }
 
@@ -116,7 +116,7 @@ class Strategies {
                                        float threshhold) {
         float totalScore = 0;
         int count;
-        System.out.println("Scoring Draw to " + kept  + ":" + (System.currentTimeMillis() - Test.START));
+        //System.out.println("Scoring Draw to " + kept  + ":" + (System.currentTimeMillis() - Test.START));
         if (kept.size() == 4) {
             totalScore = scoreHand(kept, deck, other, info, threshhold);
             count = 1;
@@ -166,7 +166,7 @@ class Strategies {
             throw new RuntimeException("Bad size for kept: " + kept.size());
         }
         float score = totalScore / (float) count;
-        System.out.println("Scoring Draw to " + kept + " as " + totalScore + "/" + count + "=  " + score  + ":" + (System.currentTimeMillis() - Test.START));
+        //System.out.println("Scoring Draw to " + kept + " as " + totalScore + "/" + count + "=  " + score  + ":" + (System.currentTimeMillis() - Test.START));
         return score;
 
     }
@@ -176,7 +176,7 @@ class Strategies {
      */
     private static <T> float scoreHand(Collection<Card> handCards, Deck deck, Strategy<T> other, T info,
                                        float threshhold) {
-        //System.out.println("Scoring " + handCards + " against " + deck.asList()  + ":" + (System.currentTimeMillis() - Test.START));
+        //System.out.println("Scoring " + handCards + " against " + deck  + ":" + (System.currentTimeMillis() - Test.START));
         Hand myHand = Hand.from(handCards);
         int wins = 0;
         int losses = 0;
