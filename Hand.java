@@ -102,7 +102,6 @@ class Hand implements Comparable<Hand> {
         getHandValues();
         return playableHandsByRank[rank];
     }
-
 	public Card cardAt(int index) {
 		return cards[index];
 	}

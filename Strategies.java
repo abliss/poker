@@ -124,30 +124,30 @@ class Strategies {
             count = deck.size();
             
             for (Card c : deck) {
-                kept.add(c);
-                totalScore += scoreHand(kept, deck.without(c), other, info, -2.0f);
+                List<Card> newHand = Lists.newArrayList(kept);
+                newHand.add(c);
+                totalScore += scoreHand(newHand, deck.without(c), other, info, -2.0f);
                 // TODO: thresh check
-                kept.remove(c);
             }
         } else if (kept.size() == 2) {
             totalScore = 0;
             int size = deck.size();
             count = size * (size - 1) / 2;
             for (Collection<Card> draw : deck.subsetsOfSize2()) {
-                kept.addAll(draw);
-                totalScore += scoreHand(kept, deck.without(draw), other, info, -2.0f);
+                List<Card> newHand = Lists.newArrayList(kept);
+                newHand.addAll(draw);
+                totalScore += scoreHand(newHand, deck.without(draw), other, info, -2.0f);
                 // TODO: thresh check
-                kept.removeAll(draw);
             }
         } else if (kept.size() == 1) {
             totalScore = 0;
             int size = deck.size();
             count = size * (size - 1) * (size - 2) / 6;
             for (Collection<Card> draw : deck.subsetsOfSize3()) {
-                kept.addAll(draw);
-                totalScore += scoreHand(kept, deck.without(draw), other, info, -2.0f);
+                List<Card> newHand = Lists.newArrayList(kept);
+                newHand.addAll(draw);
+                totalScore += scoreHand(newHand, deck.without(draw), other, info, -2.0f);
                 // TODO: thresh check
-                kept.removeAll(draw);
             }
         } else if (kept.size() == 0) {
             // XXX As long as we're drawing against the pat distro, we know this must = 0
@@ -155,11 +155,10 @@ class Strategies {
             count = 1;
             /*
             for (Collection<card> draw : deck.subsetsOfSize4()) {
-                kept.add(draw);
-                tempDeck2 = tempDeck1.without(draw);
-                totalScore += scoreHand(kept, deck.without(draw), other, info, -2.0f);
+                List<Card> newHand = Lists.newArrayList(kept);
+                newHand.addAll(draw);
+                totalScore += scoreHand(newHand, deck.without(draw), other, info, -2.0f);
                 // TODO: thresh check
-                kept.removeAll(draw);
             }
             */
         } else {
@@ -171,6 +170,7 @@ class Strategies {
 
     }
 
+    static int debug = 0;
     /**
      * Expected number of wins-losses.  If EV will be less than threshhold, just return threshhold.
      */
@@ -194,7 +194,9 @@ class Strategies {
             // TODO: thresh check
         }
         float score = ((float) (wins - losses)) / total;
-        System.out.println("Scoring " + myHand + " as " + score + "  :" + (System.currentTimeMillis() - Test.START));
+        if (debug++ % 5 == 0) {
+            System.out.println("Scoring " + myHand + " as " + score + "  :" + (System.currentTimeMillis() - Test.START));
+        }
         return score;
     }
 
