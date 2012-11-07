@@ -112,7 +112,7 @@ class Strategies {
     /**
      * Expected number of wins.  If EV will be less than threshhold, just return threshhold.
      */
-    private static <T> float scoreDraw(Collection<Card> kept, Deck deck, Strategy<T> other, T info,
+    public static <T> float scoreDraw(Collection<Card> kept, Deck deck, Strategy<T> other, T info,
                                        float threshhold) {
         float totalScore = 0;
         int count;
@@ -180,11 +180,12 @@ class Strategies {
         Hand myHand = Hand.from(handCards);
         int wins = 0;
         int losses = 0;
-        Multiset<Integer> distro = deck.allPlayableCodes();
-        int total = distro.size(); // TODO: precompute
-        for (Multiset.Entry<Integer> eirHands : distro.entrySet()) {
-            int winner = winner = myHand.compareTo(eirHands.getElement());
-            int eirCount = eirHands.getCount();
+        int deckSize = deck.size();
+        int[] distro = deck.allPlayableRanks();
+        int total = deckSize * (deckSize - 1) * (deckSize - 2) * (deckSize - 3) / 24;
+        for (int rank = 0; rank < distro.length; rank++) {
+            int winner = winner = myHand.compareTo(Hand.fromPlayableRank(rank));
+            int eirCount = distro[rank];
             if (winner > 0) {
                 wins += eirCount;
             } else if (winner < 0) {

@@ -22,17 +22,12 @@ class Test {
         for (int j = 0; j < 1; j++) {
             Deck deck = new Deck();
             //deck.shuffle(new Random(seed + j));
+            List<Card> draw = Lists.newArrayList(Card.CQC, Card.CTD, Card.C9H);
+            deck = deck.without(draw).without(Card.CKC);
             System.out.println("____ DECK ____" + deck);
-            Hand h = new Hand(Card.CAC, Card.C2D, Card.CKH, Card.CQC);
-            System.out.println("____ HAND ____" + h);
-            Collection<Card> keep = Strategies.bestDraw(h, deck.without(h.getCards()), null, null);
-            System.out.print("____ KEEP ____");
-            System.out.println(keep);
-            h = new Hand(Card.CAC, Card.C2D, Card.CKH, Card.C3C);
-            System.out.println("____ HAND ____" + h);
-            keep = Strategies.bestDraw(h, deck.without(h.getCards()), null, null);
-            System.out.print("____ KEEP ____");
-            System.out.println(keep);
+            System.out.println("____ HAND ____" + draw);
+            System.out.print("____ SCORE ____");
+            System.out.println(Strategies.scoreDraw(draw, deck, null, null, 0));
         }
             /*
         //System.out.println("____ DECK ____" + deck.asList());

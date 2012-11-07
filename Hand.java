@@ -2,6 +2,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 
 import com.google.common.collect.HashMultiset;
@@ -14,25 +15,37 @@ import com.google.common.collect.Multisets;
 class Hand implements Comparable<Hand> {
     
   private static Map<Hand, Integer> handValues = null;
+  private static Map<Integer, Integer> playableCodeToRank = null;
   private int hashCode = 0;
   private static Map<Integer, Hand> hashes = null;
+  private static final Hand[] playableHandsByRank = new Hand[1092];
   public static Map<Hand, Integer> getHandValues() {
         if (handValues == null) {
             handValues = Maps.newHashMapWithExpectedSize(270725);
             hashes = Maps.newHashMapWithExpectedSize(270725);
+            Map<Integer, Hand> playableRepresentatives = Maps.newHashMapWithExpectedSize(1092);
             // Get playable hand for every hand
             Deck deck = new Deck();
             long startTime = System.currentTimeMillis();
             for (List<Card> set : deck.subsetsOfSize4()) {
                 Hand h = Hand.from(set);
                 Integer playableCode = h.playableHandCodeImpl();
+                playableRepresentatives.put(playableCode, h);
                 handValues.put(h, playableCode);
                 hashes.put(h.hashCode(), h);
             }
-
+            // Now compress the playable codes into the range [0,1091]
+            List<Hand> reps = new ArrayList<Hand>(playableRepresentatives.values());
+            Collections.sort(reps); // NB: will access our first version of handValues
+            Map<Integer,Integer> tempPlayableCodeToRank = Maps.newHashMapWithExpectedSize(1092);
+            int i = 0;
+            for (Hand rep : reps) {
+                playableHandsByRank[i] = rep;
+                tempPlayableCodeToRank.put(rep.playableHandCode(), i);
+                i++;
+            }
+            playableCodeToRank = tempPlayableCodeToRank;
             System.out.println(handValues.size());
-            System.out.println(handValues.entrySet().size());
-            System.out.println(handValues.keySet().size());
             System.out.println(System.currentTimeMillis() - startTime);	
 		
             //System.out.println("all hands:\n" + new Distribution(handValues.keySet()).toString());
@@ -84,6 +97,10 @@ class Hand implements Comparable<Hand> {
     public static Hand fromHashCode(Integer hashCode) {
         getHandValues();
         return hashes.get(hashCode);
+    }
+    public static Hand fromPlayableRank(Integer rank) {
+        getHandValues();
+        return playableHandsByRank[rank];
     }
 
 	public Card cardAt(int index) {
@@ -161,12 +178,17 @@ class Hand implements Comparable<Hand> {
         throw new IllegalArgumentException("Bad playable code: " + playableHand);
     }
 
+    public Integer playableRank() {
+        return playableCodeToRank.get(playableHandCode());
+    }
+    
 	/**
 	 * Return the playable cards in a hand.  Assumes that the hand is in sorted order.
 	 */
-	public Integer playableHandCode() {
+	private Integer playableHandCode() {
         return getHandValues().get(this);
     }
+
     private Integer playableHandCodeImpl() {
         int code = 0;
         int bucket = 0;

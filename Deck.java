@@ -122,14 +122,13 @@ class Deck implements Iterable<Card> {
      * frequency counts.  (Each Hand is an unspecified representative of all the
      * equally-playable hands.)
      */
-    public Multiset<Integer> allPlayableCodes() {
-        Multiset<Integer> playableHands = HashMultiset.create(18096);
-        Card[] cardArr = new Card[4];
+    public int[] allPlayableRanks() {
+        int[] counts = new int[1092];
         for (Integer hash : handHashCodes()) {
             Hand h = Hand.fromHashCode(hash);
-            playableHands.add(h.playableHandCode());
+            counts[h.playableRank()]++;
         }
-        return playableHands;
+        return counts;
     }
 
     public Card cardAt(int i) {
