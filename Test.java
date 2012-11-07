@@ -22,8 +22,15 @@ class Test {
         for (int j = 0; j < 1; j++) {
             Deck deck = new Deck();
             //deck.shuffle(new Random(seed + j));
-            List<Card> draw = Lists.newArrayList(Card.CTD, Card.C9H);
-            deck = deck.without(draw).without(Card.CKD).without(Card.CQD);
+            List<Card> draw = Lists.newArrayList(Card.CJD, Card.CQH);
+            deck = new Deck().without(draw).without(Card.CKD).without(Card.CKC);
+            System.out.println("____ DECK ____" + deck);
+            System.out.println("____ HAND ____" + draw);
+            System.out.print("____ SCORE ____");
+            System.out.println(Strategies.scoreDraw(draw, deck, null, null, 0));
+
+            draw = Lists.newArrayList(Card.CKC, Card.CJD, Card.CQH);
+            deck = new Deck().without(draw).without(Card.CKD);
             System.out.println("____ DECK ____" + deck);
             System.out.println("____ HAND ____" + draw);
             System.out.print("____ SCORE ____");

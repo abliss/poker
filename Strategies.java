@@ -170,7 +170,6 @@ class Strategies {
 
     }
 
-    static int debug = 0;
     /**
      * Expected number of wins-losses.  If EV will be less than threshhold, just return threshhold.
      */
@@ -194,9 +193,6 @@ class Strategies {
             // TODO: thresh check
         }
         float score = ((float) (wins - losses)) / total;
-        if (debug++ % 5 == 0) {
-            System.out.println("Scoring " + myHand + " as " + score + "  :" + (System.currentTimeMillis() - Test.START));
-        }
         return score;
     }
 
